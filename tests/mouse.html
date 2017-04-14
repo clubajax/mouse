@@ -17,8 +17,12 @@
 
 		.wrap{
 			position: relative;
+			position: absolute;
+			top: 50px;
+			left: 50px;
 		}
 		#container {
+
 			border: 1px solid #ccc;
 			background-color: #eee;
 			width: 200px;
@@ -33,28 +37,27 @@
 			width: 200px;
 			height: 200px;
 		}
-		#container span{
-			width: 30px;
-			height: 30px;
-			background-color: #ddd;
-			position: absolute;
-		}
-		#container span:first-child{
-			top: 20px;
-			left: 20px;
-		}
-		#container span:last-of-type{
-			right: 20px;
-			bottom: 20px;
-		}
-		#dragger{
+
+		.dragger{
 			position: absolute;
 			border: 1px solid #666;
 			background-color: white;
 			width: 20px;
 			height: 20px;
+		}
+		#d1{
 			top: 90px;
 			left: 90px;
+		}
+		#d2{
+			top: 20px;
+			left: 20px;
+			background-color: #ffffdc;
+		}
+		#d3{
+			bottom: 20px;
+			right: 20px;
+			background-color: #ffe3e6;
 		}
 	</style>
 
@@ -64,9 +67,9 @@
 <div id="mocha"></div>
 <div class="wrap">
 	<div id="container">
-		<span></span>
-		<span></span>
-		<div id="dragger"></div>
+		<div class="dragger" id="d1"></div>
+		<div class="dragger" id="d2"></div>
+		<div class="dragger" id="d3"></div>
 	</div>
 	<textarea id="ta"></textarea>
 </div>
@@ -87,21 +90,19 @@
 			test('it should ', function () {
 				var
 					node = dom.byId('container'),
-					downNode = dom.byId('dragger'),
-					pBox = dom.box(node),
-					dBox = dom.box(downNode),
-					dx = dBox.x - pBox.x,
-					dy = dBox.y - pBox.y,
-					dw = pBox.w - dBox.w,
-					dh = pBox.h - dBox.h,
+					downNodes = [
+						dom.byId('d1'),
+						dom.byId('d2'),
+						dom.byId('d3')
+					],
+					pBox = dom.box(node)
 					ta = dom.byId('ta');
 
 				mouse(node, {
-					downNode: downNode
+					downNodes: downNodes
 				});
 
 				on(node, 'mouse', function (e) {
-					//console.log('mouse', e);
 					var logs = [
 						'x: ' + e.x,
 						'y: ' + e.y,
@@ -112,23 +113,68 @@
 						'dx: ' + e.dist.x,
 						'dy: ' + e.dist.y,
 						'ox: ' + e.org.x,
-						'oy: ' + e.org.y
+						'oy: ' + e.org.y,
+						'ow: ' + e.org.w,
+						'oh: ' + e.org.h
 					];
+
+					ta.value = logs.join('\n');
+				});
+			});
+
+			test.only('it should ', function () {
+				var
+					node = dom.byId('container'),
+					downNodes = [
+						dom.byId('d1'),
+						dom.byId('d2'),
+						dom.byId('d3')
+					],
+					pBox = dom.box(node),
+					dBox = null,
+					ta = dom.byId('ta');
+
+				mouse(node, {
+					downNodes: downNodes
+				});
+
+				on(node, 'mouse', function (e) {
+					var logs = [
+						'x: ' + e.x,
+						'y: ' + e.y,
+						'lx: ' + e.last.x,
+						'ly: ' + e.last.y,
+						'px: ' + e.px,
+						'py: ' + e.py,
+						'dx: ' + e.dist.x,
+						'dy: ' + e.dist.y,
+						'ox: ' + e.org.x,
+						'oy: ' + e.org.y,
+						'ow: ' + e.org.w,
+						'oh: ' + e.org.h
+					];
+
+					if(e.down){
+						dx = e.org.x;
+						dy = e.org.y;
+						dw = pBox.w - e.org.w;
+						dh = pBox.h - e.org.h;
+					}
 
 					ta.value = logs.join('\n');
 
 					dx += e.last.x;
 					dy += e.last.y;
+
 					dx = Math.max(0, Math.min(dx, dw));
 					dy = Math.max(0, Math.min(dy, dh));
-					dom.style(downNode, {
+
+					dom.style(e.mouseTarget, {
 						left: dx,
 						top: dy
 					});
 				});
 			});
-
-
 		});
 
 	});

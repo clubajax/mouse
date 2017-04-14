@@ -14,19 +14,39 @@
 }(this, function (on) {
 	'use strict';
 
-	function mouse (node, options) {
+	function mouse (parent, options) {
 		options = options || {};
-		var box,
+		var
+			upHandle,
+			moveHandle,
+			downHandle,
+			box,
 			cBox,
 			org,
 			last,
 			lastx,
 			lasty,
-			downNode = options.downNode || node;
+			handles,
+			mouseTarget,
+			downNodes;
 
-		var moveHandle = on(window, 'mousemove', function (e) {
+		if(options.downNodes){
+			downNodes = options.downNodes;
+		} else {
+			downNodes = [options.downNode || node];
+		}
+
+		function setBox (target) {
+			var i, node;
+			for(i = 0; i < downNodes.length; i++){
+				if(downNodes[i] === target){
+					node = downNodes[i];
+				}
+			}
+		}
+
+		function onMove (e) {
 			e.preventDefault();
-			// TODO: handle scroll
 			var
 				x = e.clientX - box.x,
 				y = e.clientY - box.y;
@@ -37,19 +57,18 @@
 			}
 			if(y > 0 && y < box.h) {
 				last.y = y - lasty;
+				lasty = y;
 			}
 
-
-			lasty = y;
-
-			emit('down', x, y);
+			emit('move', x, y);
 			return false;
-		});
-		var downHandle = on(downNode, 'mousedown', function (e) {
+		}
 
+		function onDown (e) {
 			e.preventDefault();
-			box = getBox(node);
-			cBox = getBox(downNode);
+			box = getBox(parent);
+			cBox = getBox(e.target);
+			mouseTarget = e.target;
 
 			var
 				x = e.clientX - box.x,
@@ -58,10 +77,10 @@
 			lastx = x;
 			lasty = y;
 
-			org = {
-				x: x,
-				y: y
-			};
+			org = cBox;
+			org.x -= box.x;
+			org.y -= box.y;
+
 			last = {
 				x: 0,
 				y: 0
@@ -69,16 +88,28 @@
 			moveHandle.resume();
 			emit('down', x, y);
 			return false;
-		});
-		var upHandle = on(window, 'mouseup', function (e) {
+		}
+
+		function onUp (e) {
 			moveHandle.pause();
-		});
+		}
+
+		moveHandle = on(window, 'mousemove', onMove);
 		moveHandle.pause();
+		upHandle = on(window, 'mouseup', onUp);
+
+		handles = [moveHandle, upHandle];
+
+		downNodes.forEach(function (node) {
+			handles.push(
+				on(node, 'mousedown', onDown)
+			);
+		});
 
 		return on.makeMultiHandle([moveHandle, downHandle, upHandle]);
 
 		function emit (type, x, y) {
-			on.emit(node, 'mouse', {
+			on.emit(parent, 'mouse', {
 				x: x,
 				y: y,
 				px: range(x/box.w, 0, 1),
@@ -92,10 +123,10 @@
 				up: type === 'up',
 				down: type === 'down',
 				move: type === 'move',
-				mouseType: type
+				mouseType: type,
+				mouseTarget: mouseTarget
 			});
 		}
-
 	}
 
 	return mouse;
@@ -110,9 +141,7 @@ function getBox (node){
 	if(node === window){
 		node = document.documentElement;
 	}
-	// node dimensions
-	// returned object is immutable
-	// add scroll positioning and convenience abbreviations
+
 	var
 		dimensions = node.getBoundingClientRect();
 	return {
