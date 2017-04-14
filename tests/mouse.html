@@ -44,8 +44,17 @@
 			height: 20px;
 		}
 		#d1{
-			top: 90px;
-			left: 90px;
+			top: 85px;
+			left: 85px;
+			width: 30px;
+			height: 30px;
+		}
+		#d1 span{
+			display: block;
+			width: 20px;
+			height: 20px;
+			background-color: #eee;
+			border: 1px solid #ccc;
 		}
 		#d2{
 			top: 20px;
@@ -117,7 +126,9 @@
 <div id="mocha"></div>
 <div class="wrap">
 	<div id="container">
-		<div class="dragger" id="d1"></div>
+		<div class="dragger" id="d1">
+			<span></span>
+		</div>
 		<div class="dragger" id="d2"></div>
 		<div class="dragger" id="d3"></div>
 	</div>

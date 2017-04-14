@@ -36,13 +36,26 @@
 			downNodes = [options.downNode || parent];
 		}
 
-		function setBox (target) {
+		function findInList (target, targets) {
 			var i, node;
-			for(i = 0; i < downNodes.length; i++){
-				if(downNodes[i] === target){
-					node = downNodes[i];
+			for(i = 0; i < targets.length; i++){
+				if(targets[i] === target){
+					return targets[i];
 				}
 			}
+			return null;
+		}
+
+		function findTarget (child, targets) {
+			var target;
+			while (!target && child !== document.body) {
+				target = findInList(child, targets);
+				if(target){
+					return target;
+				}
+				child = child.parentNode;
+			}
+			return null;
 		}
 
 		function onMove (e) {
@@ -67,8 +80,9 @@
 		function onDown (e) {
 			e.preventDefault();
 			box = getBox(parent);
-			cBox = getBox(e.target);
-			mouseTarget = e.target;
+			mouseTarget = findTarget(e.target, downNodes);
+			cBox = getBox(mouseTarget);
+
 
 			var
 				x = e.clientX - box.x,
@@ -139,7 +153,6 @@
 	mouse.constrain = function (options) {
 		var dx, dy, dw, dh;
 		return function (e) {
-
 			if (e.down) {
 				dx = e.org.x;
 				dy = e.org.y;
@@ -150,27 +163,6 @@
 					dw = e.parent.w - e.org.w;
 					dh = e.parent.h - e.org.h;
 				}
-			}
-
-			dx += e.last.x;
-			dy += e.last.y;
-
-			dx = Math.max(0, Math.min(dx, dw));
-			dy = Math.max(0, Math.min(dy, dh));
-			pos(e.mouseTarget, dx, dy);
-		}
-	};
-
-	mouse.horizontal = function () {
-		var dx, dy, dw, dh;
-		return function (e) {
-
-			if (e.down) {
-				dx = e.org.x;
-				dy = e.org.y;
-				//dw = e.parent.w - e.org.w;
-				dw = e.parent.w;
-				dh = e.parent.h - e.org.h;
 			}
 
 			dx += e.last.x;
