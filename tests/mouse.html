@@ -17,9 +17,7 @@
 
 		.wrap{
 			position: relative;
-			position: absolute;
-			top: 50px;
-			left: 50px;
+			margin-bottom: 20px;
 		}
 		#container {
 
@@ -59,6 +57,58 @@
 			right: 20px;
 			background-color: #ffe3e6;
 		}
+		.slider{
+			position: relative;
+			margin-bottom: 30px;
+		}
+		#h-slider{
+			width: 200px;
+			height: 0;
+			border-bottom: 1px solid #999;
+		}
+		#v-slider{
+			height: 200px;
+			width: 0;
+			border-right: 1px solid #999;
+			position: absolute;
+			left: 450px;
+			top: 5px;
+		}
+		.handle{
+			position: absolute;
+			left: 0;
+			top: 0;
+			width: 20px;
+			height: 20px;
+			border-radius: 50%;
+			border: 1px solid #ccc;
+			background-color: white;
+			transform: translateX(-50%) translateY(-50%);
+			cursor: ew-resize;
+		}
+		#v-handle{
+			cursor: ns-resize;
+		}
+		#tall-slider{
+			position: relative;
+			width: 200px;
+			height: 30px;
+			margin-bottom: 20px;
+			border: 1px solid #ccc;
+			background-color: white;
+		}
+		#tall-handle{
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 20px;
+			height: 30px;
+			border-style: solid;
+			border-color: #ccc;
+			border-width: 0 1px;
+			background-color: white;
+			cursor: ew-resize;
+		}
 	</style>
 
 </head>
@@ -72,7 +122,19 @@
 		<div class="dragger" id="d3"></div>
 	</div>
 	<textarea id="ta"></textarea>
+	<div id="v-slider" class="slider">
+		<div class="handle" id="v-handle"></div>
+	</div>
 </div>
+<div class="wrap">
+	<div id="h-slider" class="slider">
+		<div class="handle" id="h-handle"></div>
+	</div>
+	<div id="tall-slider">
+		<div id="tall-handle"></div>
+	</div>
+</div>
+
 <script>
 	mocha.setup('tdd');
 
@@ -87,7 +149,7 @@
 
 		suite('mouse', function () {
 
-			test('it should ', function () {
+			test('it should track the mouse', function () {
 				var
 					node = dom.byId('container'),
 					downNodes = [
@@ -122,7 +184,7 @@
 				});
 			});
 
-			test.only('it should ', function () {
+			test('it should drag the child items', function () {
 				var
 					node = dom.byId('container'),
 					downNodes = [
@@ -153,6 +215,7 @@
 						'ow: ' + e.org.w,
 						'oh: ' + e.org.h
 					];
+					ta.value = logs.join('\n');
 
 					if(e.down){
 						dx = e.org.x;
@@ -160,8 +223,6 @@
 						dw = pBox.w - e.org.w;
 						dh = pBox.h - e.org.h;
 					}
-
-					ta.value = logs.join('\n');
 
 					dx += e.last.x;
 					dy += e.last.y;
@@ -175,8 +236,90 @@
 					});
 				});
 			});
-		});
 
+			test.only('it should use mouse.constrain', function () {
+				var
+					node = dom.byId('container'),
+					downNodes = [
+						dom.byId('d1'),
+						dom.byId('d2'),
+						dom.byId('d3')
+					],
+					pBox = dom.box(node),
+					dBox = null,
+					ta = dom.byId('ta');
+
+				mouse(node, {
+					downNodes: downNodes,
+					constrain: true
+				});
+
+				on(node, 'mouse', function (e) {
+					var logs = [
+						'x: ' + e.x,
+						'y: ' + e.y,
+						'lx: ' + e.last.x,
+						'ly: ' + e.last.y,
+						'px: ' + e.px,
+						'py: ' + e.py,
+						'dx: ' + e.dist.x,
+						'dy: ' + e.dist.y,
+						'ox: ' + e.org.x,
+						'oy: ' + e.org.y,
+						'ow: ' + e.org.w,
+						'oh: ' + e.org.h
+					];
+					ta.value = logs.join('\n');
+				});
+			});
+
+			test.only('it should only move horizontally on center', function () {
+				var
+					node = dom.byId('h-slider'),
+					downNodes = [
+						dom.byId('h-handle')
+					],
+					pBox = dom.box(node),
+					dBox = null;
+
+				mouse(node, {
+					downNodes: downNodes,
+					horizontal: true,
+					centerEdge: true
+				});
+			});
+
+			test.only('it should only move horizontally', function () {
+				var
+					node = dom.byId('tall-slider'),
+					downNodes = [
+						dom.byId('tall-handle')
+					],
+					pBox = dom.box(node),
+					dBox = null;
+
+				mouse(node, {
+					downNodes: downNodes,
+					horizontal: true
+				});
+			});
+
+			test.only('it should only move vertically', function () {
+				var
+					node = dom.byId('v-slider'),
+					downNodes = [
+						dom.byId('v-handle')
+					],
+					pBox = dom.box(node),
+					dBox = null;
+
+				mouse(node, {
+					downNodes: downNodes,
+					vertical: true,
+					centerEdge: true
+				});
+			});
+		});
 	});
 
 	mocha.run();

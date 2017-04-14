@@ -106,6 +106,12 @@
 			);
 		});
 
+		if(options.constrain || options.horizontal || options.vertical){
+			handles.push(
+				on(parent, 'mouse', mouse.constrain(options))
+			)
+		}
+
 		return on.makeMultiHandle([moveHandle, downHandle, upHandle]);
 
 		function emit (type, x, y) {
@@ -115,6 +121,7 @@
 				px: range(x/box.w, 0, 1),
 				py: range(y/box.h, 0, 1),
 				org: org,
+				parent: box,
 				last: last,
 				dist:{
 					x: x - org.x,
@@ -129,12 +136,63 @@
 		}
 	}
 
+	mouse.constrain = function (options) {
+		var dx, dy, dw, dh;
+		return function (e) {
+
+			if (e.down) {
+				dx = e.org.x;
+				dy = e.org.y;
+				if(options.centerEdge){
+					dw = e.parent.w;
+					dh = e.parent.h;
+				} else {
+					dw = e.parent.w - e.org.w;
+					dh = e.parent.h - e.org.h;
+				}
+			}
+
+			dx += e.last.x;
+			dy += e.last.y;
+
+			dx = Math.max(0, Math.min(dx, dw));
+			dy = Math.max(0, Math.min(dy, dh));
+			pos(e.mouseTarget, dx, dy);
+		}
+	};
+
+	mouse.horizontal = function () {
+		var dx, dy, dw, dh;
+		return function (e) {
+
+			if (e.down) {
+				dx = e.org.x;
+				dy = e.org.y;
+				//dw = e.parent.w - e.org.w;
+				dw = e.parent.w;
+				dh = e.parent.h - e.org.h;
+			}
+
+			dx += e.last.x;
+			dy += e.last.y;
+
+			dx = Math.max(0, Math.min(dx, dw));
+			dy = Math.max(0, Math.min(dy, dh));
+			pos(e.mouseTarget, dx, dy);
+		}
+	};
+
 	return mouse;
 
 }));
 
 function range (value, min, max) {
 	return Math.min(max, Math.max(min, value));
+}
+
+function pos (node, x, y) {
+	node.style.left = x + 'px';
+	node.style.top = y + 'px';
 }
 
 function getBox (node){
