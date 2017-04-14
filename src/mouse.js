@@ -33,7 +33,7 @@
 		if(options.downNodes){
 			downNodes = options.downNodes;
 		} else {
-			downNodes = [options.downNode || node];
+			downNodes = [options.downNode || parent];
 		}
 
 		function setBox (target) {
