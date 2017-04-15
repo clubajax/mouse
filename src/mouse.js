@@ -28,6 +28,7 @@
 			lasty,
 			handles,
 			mouseTarget,
+			realTarget,
 			downNodes;
 
 		if(options.downNodes){
@@ -80,9 +81,9 @@
 		function onDown (e) {
 			e.preventDefault();
 			box = getBox(parent);
+			realTarget = e.target;
 			mouseTarget = findTarget(e.target, downNodes);
 			cBox = getBox(mouseTarget);
-
 
 			var
 				x = e.clientX - box.x,
@@ -145,7 +146,8 @@
 				down: type === 'down',
 				move: type === 'move',
 				mouseType: type,
-				mouseTarget: mouseTarget
+				mouseTarget: mouseTarget,
+				realTarget: realTarget
 			});
 		}
 	}
