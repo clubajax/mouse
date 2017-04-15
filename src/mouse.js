@@ -79,7 +79,6 @@
 		}
 
 		function onDown (e) {
-			e.preventDefault();
 			box = getBox(parent);
 			realTarget = e.target;
 			mouseTarget = findTarget(e.target, downNodes);
@@ -102,7 +101,6 @@
 			};
 			moveHandle.resume();
 			emit('down', x, y);
-			return false;
 		}
 
 		function onUp (e) {
