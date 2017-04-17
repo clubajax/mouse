@@ -19,7 +19,6 @@
 		var
 			upHandle,
 			moveHandle,
-			downHandle,
 			box,
 			cBox,
 			org,
@@ -125,7 +124,7 @@
 			)
 		}
 
-		return on.makeMultiHandle([moveHandle, downHandle, upHandle]);
+		return on.makeMultiHandle(handles);
 
 		function emit (type, x, y) {
 			on.emit(parent, 'mouse', {
