@@ -19,6 +19,7 @@
 		var
 			upHandle,
 			moveHandle,
+			multiHandle,
 			box,
 			cBox,
 			org,
@@ -99,17 +100,15 @@
 				x: 0,
 				y: 0
 			};
-			handles.resume();
+			multiHandle.resume();
 			emit('down', x, y);
 		}
 
 		function onUp (e) {
-			handles.pause();
+			multiHandle.pause();
 		}
 
 		moveHandle = on(window, 'mousemove', onMove);
-		moveHandle.pause();
-
 		upHandle = on(window, 'mouseup', onUp);
 
 		handles = [moveHandle, upHandle];
@@ -126,6 +125,8 @@
 			)
 		}
 
+		multiHandle = on.makeMultiHandle(handles);
+		multiHandle.pause();
 		return on.makeMultiHandle(downHandles);
 
 		function emit (type, x, y) {
