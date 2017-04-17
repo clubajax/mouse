@@ -26,6 +26,7 @@
 			lastx,
 			lasty,
 			handles,
+			downHandles = [],
 			mouseTarget,
 			realTarget,
 			downNodes;
@@ -98,22 +99,23 @@
 				x: 0,
 				y: 0
 			};
-			moveHandle.resume();
+			handles.resume();
 			emit('down', x, y);
 		}
 
 		function onUp (e) {
-			moveHandle.pause();
+			handles.pause();
 		}
 
 		moveHandle = on(window, 'mousemove', onMove);
 		moveHandle.pause();
+
 		upHandle = on(window, 'mouseup', onUp);
 
 		handles = [moveHandle, upHandle];
 
 		downNodes.forEach(function (node) {
-			handles.push(
+			downHandles.push(
 				on(node, 'mousedown', onDown)
 			);
 		});
@@ -124,7 +126,7 @@
 			)
 		}
 
-		return on.makeMultiHandle(handles);
+		return on.makeMultiHandle(downHandles);
 
 		function emit (type, x, y) {
 			on.emit(parent, 'mouse', {
