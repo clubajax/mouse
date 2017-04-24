@@ -211,8 +211,8 @@
 			}
 
 			if (e.down && e.track) {
-				dx = e.x - (e.org.w/2);
-				dy = e.y - (e.org.h/2);
+				dx = e.x - (options.centerEdge ? 0 : (e.org.w/2));
+				dy = e.y - (options.centerEdge ? 0 : (e.org.h/2));
 			} else {
 				dx += e.last.x;
 				dy += e.last.y;
