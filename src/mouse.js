@@ -17,6 +17,8 @@
 	function mouse (parent, options) {
 		options = options || {};
 		var
+			isConstrained = options.constrain || options.horizontal || options.vertical,
+			constrain,
 			upHandle,
 			moveHandle,
 			multiHandle,
@@ -30,9 +32,10 @@
 			downHandles = [],
 			mouseTarget,
 			realTarget,
-			downNodes;
+			downNodes,
+			isDown = false;
 
-		if(options.downNodes){
+		if (options.downNodes) {
 			downNodes = options.downNodes;
 		} else {
 			downNodes = [options.downNode || parent];
@@ -40,8 +43,8 @@
 
 		function findInList (target, targets) {
 			var i, node;
-			for(i = 0; i < targets.length; i++){
-				if(targets[i] === target){
+			for (i = 0; i < targets.length; i++) {
+				if (targets[i] === target) {
 					return targets[i];
 				}
 			}
@@ -52,7 +55,7 @@
 			var target;
 			while (!target && child !== document.body) {
 				target = findInList(child, targets);
-				if(target){
+				if (target) {
 					return target;
 				}
 				child = child.parentNode;
@@ -66,11 +69,11 @@
 				x = e.clientX - box.x,
 				y = e.clientY - box.y;
 
-			if(x > 0 && x < box.w) {
+			if (x > 0 && x < box.w) {
 				last.x = x - lastx;
 				lastx = x;
 			}
-			if(y > 0 && y < box.h) {
+			if (y > 0 && y < box.h) {
 				last.y = y - lasty;
 				lasty = y;
 			}
@@ -80,6 +83,7 @@
 		}
 
 		function onDown (e) {
+			isDown = true;
 			box = getBox(parent);
 			realTarget = e.target;
 			mouseTarget = findTarget(e.target, downNodes);
@@ -104,14 +108,51 @@
 			emit('down', x, y);
 		}
 
+		function onTrack (e) {
+			if (isDown) {
+				return;
+			}
+			box = getBox(parent);
+			realTarget = e.target;
+			mouseTarget = downNodes[0];
+			cBox = getBox(mouseTarget);
+
+			var
+				x = e.clientX - box.x,
+				y = e.clientY - box.y;
+
+			lastx = x;
+			lasty = y;
+
+			org = cBox;
+			org.x -= box.x;
+			org.y -= box.y;
+
+			last = {
+				x: 0,
+				y: 0
+			};
+
+			multiHandle.resume();
+			emit('track', x, y);
+		}
+
 		function onUp (e) {
+			isDown = false;
 			multiHandle.pause();
 		}
 
-		moveHandle = on(window, 'mousemove', onMove);
+		moveHandle = on(window, 'mousemove', function (e) {
+			onMove(e)
+		});
 		upHandle = on(window, 'mouseup', onUp);
 
 		handles = [moveHandle, upHandle];
+
+		if (options.track) {
+			if (downNodes.length !== 1) { throw new Error('Only one downNode can be tracked'); }
+			downHandles.push(on(parent, 'mousedown', onTrack));
+		}
 
 		downNodes.forEach(function (node) {
 			downHandles.push(
@@ -119,9 +160,10 @@
 			);
 		});
 
-		if(options.constrain || options.horizontal || options.vertical){
+		if (isConstrained) {
+			constrain = mouse.constrain(options);
 			handles.push(
-				on(parent, 'mouse', mouse.constrain(options))
+				on(parent, 'mouse', constrain)
 			)
 		}
 
@@ -133,18 +175,19 @@
 			on.emit(parent, 'mouse', {
 				x: x,
 				y: y,
-				px: range(x/box.w, 0, 1),
-				py: range(y/box.h, 0, 1),
+				px: range(x / box.w, 0, 1),
+				py: range(y / box.h, 0, 1),
 				org: org,
 				parent: box,
 				last: last,
-				dist:{
+				dist: {
 					x: x - org.x,
 					y: y - org.y
 				},
 				up: type === 'up',
-				down: type === 'down',
+				down: type === 'down' || type === 'track',
 				move: type === 'move',
+				track: type === 'track',
 				mouseType: type,
 				mouseTarget: mouseTarget,
 				realTarget: realTarget
@@ -158,7 +201,7 @@
 			if (e.down) {
 				dx = e.org.x;
 				dy = e.org.y;
-				if(options.centerEdge){
+				if (options.centerEdge) {
 					dw = e.parent.w;
 					dh = e.parent.h;
 				} else {
@@ -167,8 +210,13 @@
 				}
 			}
 
-			dx += e.last.x;
-			dy += e.last.y;
+			if (e.down && e.track) {
+				dx = e.x - (e.org.w/2);
+				dy = e.y - (e.org.h/2);
+			} else {
+				dx += e.last.x;
+				dy += e.last.y;
+			}
 
 			dx = Math.max(0, Math.min(dx, dw));
 			dy = Math.max(0, Math.min(dy, dh));
@@ -189,25 +237,17 @@ function pos (node, x, y) {
 	node.style.top = y + 'px';
 }
 
-function getBox (node){
-	if(node === window){
+function getBox (node) {
+	if (node === window) {
 		node = document.documentElement;
 	}
 
 	var
-		dimensions = node.getBoundingClientRect();
+		box = node.getBoundingClientRect();
 	return {
-		top: dimensions.top,
-		right: dimensions.right,
-		bottom: dimensions.bottom,
-		left: dimensions.left,
-		height: dimensions.height,
-		h: dimensions.height,
-		width: dimensions.width,
-		w: dimensions.width,
-		scrollY: window.scrollY,
-		scrollX: window.scrollX,
-		x: dimensions.left + window.pageXOffset,
-		y: dimensions.top + window.pageYOffset
+		h: box.height,
+		w: box.width,
+		x: box.left,
+		y: box.top
 	};
 }
