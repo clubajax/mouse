@@ -1,6 +1,6 @@
 {
   "name": "mouse",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "Tracks mouse position for dragging objects",
   "main": "./src/mouse.js",
   "scripts": {
