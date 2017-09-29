@@ -59,21 +59,18 @@ module.exports = function (grunt) {
 
     // watch build task
     grunt.registerTask('build-dev', function (which) {
-        console.time('build');
-        grunt.task.run('browserify:dev');
+
 
     });
 
     // task that builds vendor and dev files during development
     grunt.registerTask('build', function (which) {
-        grunt.task.run('browserify:vendor');
-        grunt.task.run('build-dev');
+
     });
 
     // The general task: builds, serves and watches
     grunt.registerTask('dev', function (which) {
-        grunt.task.run('build');
-        grunt.task.run('concurrent:target');
+
     });
 
     // alias for server

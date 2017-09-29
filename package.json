@@ -1,6 +1,6 @@
 {
   "name": "@clubajax/mouse",
-  "version": "0.6.0",
+  "version": "1.0.0",
   "description": "Tracks mouse position for dragging objects",
   "main": "./src/mouse.js",
   "scripts": {
