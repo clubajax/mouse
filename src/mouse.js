@@ -224,30 +224,30 @@
 		}
 	};
 
+	function range (value, min, max) {
+		return Math.min(max, Math.max(min, value));
+	}
+
+	function pos (node, x, y) {
+		node.style.left = x + 'px';
+		node.style.top = y + 'px';
+	}
+
+	function getBox (node) {
+		if (node === window) {
+			node = document.documentElement;
+		}
+
+		var
+			box = node.getBoundingClientRect();
+		return {
+			h: box.height,
+			w: box.width,
+			x: box.left,
+			y: box.top
+		};
+	}
+
 	return mouse;
 
 }));
-
-function range (value, min, max) {
-	return Math.min(max, Math.max(min, value));
-}
-
-function pos (node, x, y) {
-	node.style.left = x + 'px';
-	node.style.top = y + 'px';
-}
-
-function getBox (node) {
-	if (node === window) {
-		node = document.documentElement;
-	}
-
-	var
-		box = node.getBoundingClientRect();
-	return {
-		h: box.height,
-		w: box.width,
-		x: box.left,
-		y: box.top
-	};
-}

@@ -18,69 +18,7 @@ module.exports = function (grunt) {
         devBabel = false;
     
     grunt.initConfig({
-        
-        browserify: {
-            // source maps have to be inline.
-            // grunt-exorcise promises to do this, but it seems overly complicated
-            vendor: {
-                // different convention than "dev" - this gets the external
-                // modules to work properly
-                // Note that vendor does not run through babel - not expecting
-                // any transforms. If we were, that should either be built into
-                // the app or be another vendor-type file
-                src: ['.'],
-                dest: 'tests/dist/vendor.js',
-                options: {
-                    // expose the modules
-                    alias: devAliases.map(function (module) {
-                        return module + ':';
-                    }),
-                    // not consuming any modules
-                    external: null,
-                    browserifyOptions: {
-                        debug: sourceMaps
-                    }
-                }
-            },
-            dev: {
-                files: {
-                    'tests/dist/output.js': ['tests/src/globals.js', 'tests/src/lifecycle.js']
-                },
-                options: {
-                    // not using browserify-watch; it did not trigger a page reload
-                    watch: false,
-                    keepAlive: false,
-                    external: devAliases,
-					alias: {
-                    	'BaseComponent': './src/BaseComponent'
-					},
-                    browserifyOptions: {
-                        debug: sourceMaps
-                    },
-                    // transform not using babel in dev-mode.
-                    // if developing in IE or using very new features,
-                    // change devBabel to `true`
-                    transform: devBabel ? babelTransform : [],
-                    postBundleCB: function (err, src, next) {
-                        console.timeEnd('build');
-                        next(err, src);
-                    }
-                }
-            },
-            deploy: {
-                files: {
-                    'dist/core.js': ['src/deploy.js']
-                },
-                options: {
-					transform: babelTransform,
-                    browserifyOptions: {
-						standalone: 'core',
-                        debug: false
-                    }
-                }
-            }
-        },
-        
+
         watch: {
             scripts: {
                 files: ['tests/src/*.js', 'src/*.js', 'tests/*.html'],
@@ -145,15 +83,10 @@ module.exports = function (grunt) {
 
 	grunt.registerTask('deploy', function (which) {
 		const compile = require('./scripts/compile');
-		compile('BaseComponent');
-		compile('properties');
-		compile('template');
-		compile('refs');
-		compile('item-template');
+		compile();
 	});
 
 	grunt.loadNpmTasks('grunt-concurrent');
     grunt.loadNpmTasks('grunt-contrib-watch');
-    grunt.loadNpmTasks('grunt-browserify');
     grunt.loadNpmTasks('grunt-http-server');
 };
