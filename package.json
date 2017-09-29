@@ -1,9 +1,10 @@
 {
-  "name": "mouse",
+  "name": "@clubajax/mouse",
   "version": "0.6.0",
   "description": "Tracks mouse position for dragging objects",
   "main": "./src/mouse.js",
   "scripts": {
+    "start": "grunt dev",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -23,5 +24,14 @@
   "bugs": {
     "url": "https://github.com/clubajax/mouse/issues"
   },
-  "homepage": "https://github.com/clubajax/mouse#readme"
+  "homepage": "https://github.com/clubajax/mouse#readme",
+  "directories": {
+    "test": "tests"
+  },
+  "dependencies": {
+    "@clubajax/on": "^2.1.6"
+  },
+  "devDependencies": {
+    "@clubajax/dom": "^2.1.6"
+  }
 }
