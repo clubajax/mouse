@@ -5,7 +5,7 @@
 	}
 	else if (typeof module === 'object' && module.exports) {
 		// Node / CommonJS
-		module.exports = factory(require('on'));
+		module.exports = factory(require('@clubajax/on'));
 	}
 	else {
 		// Browser globals (root is window)
