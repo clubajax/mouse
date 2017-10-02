@@ -1,7 +1,7 @@
 (function (root, factory) {
 	if (typeof define === 'function' && define.amd) {
 		// AMD
-		define(['on'], factory);
+		define(['@clubajax/on'], factory);
 	}
 	else if (typeof module === 'object' && module.exports) {
 		// Node / CommonJS
