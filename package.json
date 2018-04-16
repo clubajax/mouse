@@ -1,6 +1,6 @@
 {
   "name": "@clubajax/mouse",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Tracks mouse position for dragging objects",
   "main": "./src/mouse.js",
   "scripts": {
@@ -29,10 +29,10 @@
     "test": "tests"
   },
   "dependencies": {
-    "@clubajax/on": "^2.1.6"
+    "@clubajax/on": "^2.1.8"
   },
   "devDependencies": {
-    "@clubajax/dom": "^2.1.7",
+    "@clubajax/dom": "^2.7.1",
     "grunt-concurrent": "^2.3.1",
     "grunt-contrib-watch": "^1.0.0",
     "grunt-http-server": "^2.0.0"
